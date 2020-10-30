@@ -68,12 +68,14 @@ def test(net, images_folder, output_folder, scaled_height):
         # cv2.waitKey(0)
 
 
+# os.environ["CUDA_VISIBLE_DEVICES"] = '2,3,4'
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--images-folder', type=str, required=True, help='path to the folder with test images')
+    parser.add_argument('--images-folder', type=str, default='data/ICDAR2015', help='path to the folder with test images')
     parser.add_argument('--output-folder', type=str, default='fots_test_results',
                         help='path to the output folder with result labels')
-    parser.add_argument('--checkpoint', type=str, required=True, help='path to the checkpoint to test')
+    parser.add_argument('--checkpoint', type=str, default='data/model_checkpoint/best_checkpoint.pt', help='path to the checkpoint to test')
     parser.add_argument('--height-size', type=int, default=1260, help='height size to resize input image')
     args = parser.parse_args()
 

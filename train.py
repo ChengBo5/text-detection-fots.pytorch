@@ -13,6 +13,7 @@ import datasets
 from model import FOTSModel
 from modules.parse_polys import parse_polys
 
+os.environ["CUDA_VISIBLE_DEVICES"] = '2,3,4'
 
 def restore_checkpoint(folder, contunue):
     model = FOTSModel().to(torch.device("cuda"))
@@ -36,8 +37,8 @@ def restore_checkpoint(folder, contunue):
 def save_checkpoint(epoch, model, optimizer, lr_scheduler, best_score, folder, save_as_best):
     if not os.path.exists(folder):
         os.makedirs(folder)
-    # if epoch > 60 and epoch % 6 == 0:
-    if True:
+    if epoch > 60 and epoch % 6 == 0:
+    # if True:
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.module.state_dict(),
@@ -295,20 +296,21 @@ def fit(start_epoch, model, loss_func, opt, lr_scheduler, best_score, max_batche
             save_as_best = True
         else:
             save_as_best = False
+        # if epoch % 10 == 0:
         save_checkpoint(epoch, model, opt, lr_scheduler, best_score, checkpoint_dir, save_as_best)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--train-folder', type=str, required=True, help='Path to folder with train images and labels')
-    parser.add_argument('--batch-size', type=int, default=21, help='Number of batches to process before train step')
+    parser.add_argument('--train-folder', type=str, default='data/ICDAR2015', help='Path to folder with train images and labels')
+    parser.add_argument('--batch-size', type=int, default=4, help='Number of batches to process before train step')
     parser.add_argument('--batches-before-train', type=int, default=2, help='Number of batches to process before train step')
-    parser.add_argument('--num-workers', type=int, default=8, help='Path to folder with train images and labels')
+    parser.add_argument('--num-workers', type=int, default=2, help='Path to folder with train images and labels')
     parser.add_argument('--continue-training', action='store_true', help='continue training')
     args = parser.parse_args()
 
-    data_set = datasets.SynthText(args.train_folder, datasets.transform)
-    # data_set = datasets.ICDAR2015(args.train_folder, datasets.transform)
+    # data_set = datasets.SynthText(args.train_folder, datasets.transform)
+    data_set = datasets.ICDAR2015(args.train_folder, datasets.transform)
 
     # SynthText and ICDAR2015 have different layouts. One will probably need to provide two different paths to train
     # on concatination of these two data sets. But the paper doesn't concat them so me neither
@@ -316,7 +318,7 @@ if __name__ == '__main__':
 
     dl = torch.utils.data.DataLoader(data_set, batch_size=args.batch_size, shuffle=True,
                                      sampler=None, batch_sampler=None, num_workers=args.num_workers)
-    checkoint_dir = 'runs'
+    checkoint_dir = 'data/model_checkpoint'
     epoch, model, optimizer, lr_scheduler, best_score = restore_checkpoint(checkoint_dir, args.continue_training)
     model = torch.nn.DataParallel(model)
     fit(epoch, model, detection_loss, optimizer, lr_scheduler, best_score, args.batches_before_train, checkoint_dir, dl, None)

@@ -1,3 +1,6 @@
+data/
+fots_test_results/
+
 runs/
 .idea/
 .vscode/
