@@ -30,7 +30,7 @@ def test(net, images_folder, output_folder, scaled_height):
         confidence = torch.sigmoid(confidence).squeeze().data.cpu().numpy()
         distances = distances.squeeze().data.cpu().numpy()
         angle = angle.squeeze().data.cpu().numpy()
-        polys = parse_polys(confidence, distances, angle, 0.95, 0.3)#, img=orig_scaled_image)
+        polys = parse_polys(confidence, distances, angle, 0.95, 0.3, image, scale_x, scale_y)#, img=orig_scaled_image)
         with open('{}'.format(os.path.join(output_folder, 'res_{}.txt'.format(prefix))), 'w') as f:
             for id in range(polys.shape[0]):
                 f.write('{}, {}, {}, {}, {}, {}, {}, {}\n'.format(
@@ -72,10 +72,10 @@ def test(net, images_folder, output_folder, scaled_height):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--images-folder', type=str, default='data/ICDAR2015', help='path to the folder with test images')
+    parser.add_argument('--images-folder', type=str, default='data/ICDAR2015/ch4_test_images', help='path to the folder with test images')
     parser.add_argument('--output-folder', type=str, default='fots_test_results',
                         help='path to the output folder with result labels')
-    parser.add_argument('--checkpoint', type=str, default='data/model_checkpoint/best_checkpoint.pt', help='path to the checkpoint to test')
+    parser.add_argument('--checkpoint', type=str, default='data/model_checkpoint/epoch_276_checkpoint.pt', help='path to the checkpoint to test')
     parser.add_argument('--height-size', type=int, default=1260, help='height size to resize input image')
     args = parser.parse_args()
 
